@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0f0a1e"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="SAB Speak"/>
+<title>SAB Speak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0f0a1e;
+  --bg2: #1a1235;
+  --bg3: #231848;
+  --purple: #7c6aff;
+  --purple2: #a594ff;
+  --teal: #1de0a0;
+  --pink: #ff6b9d;
+  --amber: #ffb84d;
+  --text: #f0ecff;
+  --text2: #9b8fc4;
+  --text3: #6b5e8a;
+  --card: #1a1235;
+  --border: rgba(124,106,255,0.18);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;justify-content:center;align-items:flex-start}
+
+.app-shell{width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+.bg-orbs{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:0.25}
+.orb1{width:300px;height:300px;background:#7c6aff;top:-80px;right:-60px}
+.orb2{width:200px;height:200px;background:#1de0a0;bottom:100px;left:-50px}
+.orb3{width:150px;height:150px;background:#ff6b9d;top:40%;right:-30px}
+
+.header{position:relative;z-index:2;padding:1rem 1.1rem 0.6rem;flex-shrink:0}
+.header-top{display:flex;align-items:center;gap:10px;margin-bottom:0.6rem}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--purple),var(--teal));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.app-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text)}
+.app-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.streak-pill{background:rgba(255,184,77,0.15);border:1px solid rgba(255,184,77,0.3);border-radius:99px;padding:4px 10px;font-size:12px;color:var(--amber);display:flex;align-items:center;gap:4px}
+.level-badge{background:rgba(124,106,255,0.2);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-size:12px;color:var(--purple2)}
+
+.xp-row{display:flex;align-items:center;gap:8px}
+.xp-track{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden}
+.xp-fill{height:5px;background:linear-gradient(90deg,var(--purple),var(--teal));border-radius:99px;width:34%;transition:width 0.6s}
+.xp-lbl{font-size:11px;color:var(--text3);white-space:nowrap}
+
+.nav{position:relative;z-index:2;display:flex;gap:4px;padding:0 1rem 0.5rem;flex-shrink:0}
+.nav-btn{flex:1;padding:8px 4px 6px;border:none;background:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text3);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.2s}
+.nav-btn .ico{font-size:20px;transition:transform 0.2s}
+.nav-btn.active{color:var(--purple2);background:rgba(124,106,255,0.12)}
+.nav-btn.active .ico{transform:scale(1.15)}
+
+.screens{position:relative;z-index:1;flex:1;overflow:hidden;padding:0 0.875rem 0.5rem}
+.screen{display:none;height:100%;overflow-y:auto;padding-bottom:0.5rem}
+.screen::-webkit-scrollbar{width:3px}
+.screen::-webkit-scrollbar-track{background:transparent}
+.screen::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+.screen.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem}
+.card-sm{background:var(--bg2);border:1px solid rgba(255,255,255,0.05);border-radius:var(--radius-sm);padding:0.75rem}
+
+/* CHAT */
+.chat-area{display:flex;flex-direction:column;gap:8px;margin-bottom:0.75rem;min-height:160px}
+.msg-row{display:flex}
+.msg-row.user{justify-content:flex-end}
+.bubble{max-width:84%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.55}
+.bubble.ai{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
+.bubble.user{background:var(--purple);color:#fff;border-bottom-right-radius:4px}
+.bubble.tip{background:rgba(29,224,160,0.1);border:1px solid rgba(29,224,160,0.3);color:#7fffd4;font-size:13px;border-bottom-left-radius:4px}
+
+.tooltip-word{border-bottom:1px dashed var(--purple2);cursor:pointer;position:relative;display:inline}
+.tooltip-word .tt{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#110b2e;border:1px solid var(--purple);color:var(--purple2);font-size:12px;padding:5px 10px;border-radius:8px;white-space:nowrap;z-index:100;pointer-events:none}
+.tooltip-word .tt::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--purple)}
+.tooltip-word:hover .tt{display:block}
+
+.input-row{display:flex;gap:7px;align-items:center}
+.input-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:10px 16px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.input-row input::placeholder{color:var(--text3)}
+.input-row input:focus{border-color:var(--purple)}
+.btn-circle{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:transform 0.15s,background 0.15s}
+.btn-circle:active{transform:scale(0.92)}
+.btn-mic{background:var(--purple)}
+.btn-mic.rec{background:var(--pink);animation:pulse 1s infinite}
+.btn-send{background:var(--teal);color:#0f0a1e}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* GEMINI area */
+.gemini-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(29,224,160,0.1);border:1px solid rgba(29,224,160,0.25);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--teal);margin-bottom:0.6rem}
+.gemini-status{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+.gemini-status.off{background:var(--text3)}
+.api-row{display:flex;gap:6px;margin-bottom:0.5rem}
+.api-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.api-row input:focus{border-color:var(--teal)}
+.btn-connect{padding:8px 14px;background:var(--teal);color:#0f0a1e;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.api-hint{font-size:11px;color:var(--text3);line-height:1.5}
+.api-hint a{color:var(--purple2)}
+
+/* QUIZ */
+.quiz-money{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--amber);text-align:center;margin-bottom:0.75rem}
+.quiz-q-text{font-size:15px;color:var(--text);font-weight:500;line-height:1.5;margin-bottom:1rem}
+.lvbar{display:flex;gap:3px;margin-bottom:0.75rem}
+.lvbar-dot{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.08)}
+.lvbar-dot.done{background:var(--purple)}
+.lvbar-dot.now{background:var(--teal)}
+.opt{width:100%;text-align:left;padding:11px 14px;margin-bottom:7px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.opt:hover{border-color:var(--purple);background:rgba(124,106,255,0.1)}
+.opt.correct{background:rgba(29,224,160,0.12);border-color:var(--teal);color:#7fffd4}
+.opt.wrong{background:rgba(255,107,157,0.1);border-color:var(--pink);color:#ffb3c8}
+.lifelines{display:flex;gap:6px;margin-bottom:0.75rem}
+.ll-btn{flex:1;padding:7px 4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px;transition:all 0.15s}
+.ll-btn:hover{border-color:var(--purple2);color:var(--purple2)}
+.ll-btn.used{opacity:0.25;pointer-events:none}
+.quiz-fb{font-size:13px;color:var(--teal);text-align:center;min-height:18px;margin-top:0.25rem}
+
+/* READ */
+.topic-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0.75rem}
+.chip{padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg3);font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.chip:hover,.chip.on{background:rgba(124,106,255,0.18);border-color:var(--purple);color:var(--purple2)}
+.read-tag{font-size:11px;padding:3px 10px;border-radius:99px;margin-bottom:0.5rem;display:inline-block}
+.read-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:0.6rem;line-height:1.35}
+.read-body{font-size:14px;color:var(--text2);line-height:1.75}
+.read-actions{display:flex;gap:7px;margin-top:0.875rem}
+.read-act{flex:1;padding:8px 4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s}
+.read-act:hover{border-color:var(--purple2);color:var(--purple2)}
+
+/* PROGRESS */
+.ring-wrap{display:flex;justify-content:center;margin:0.25rem 0 0.875rem}
+.score-label{text-align:center;margin-bottom:1rem}
+.score-label .score-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--purple2)}
+.score-label .score-desc{font-size:13px;color:var(--text2);margin-top:2px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0.75rem}
+.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem}
+.stat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text)}
+.stat-l{font-size:11px;color:var(--text3);margin-top:2px}
+.skill-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.skill-row:last-child{border-bottom:none}
+.skill-nm{font-size:13px;color:var(--text2);min-width:110px}
+.skill-track{flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden}
+.skill-fill{height:5px;border-radius:99px}
+.skill-val{font-size:12px;color:var(--text3);min-width:48px;text-align:right}
+
+/* SETTINGS */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.setting-row:last-child{border-bottom:none}
+.setting-lbl{font-size:14px;color:var(--text2)}
+.setting-ctrl select,.setting-ctrl input[type=time]{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 8px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.setting-ctrl input[type=checkbox]{width:18px;height:18px;accent-color:var(--purple)}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">🗣️</div>
+      <div>
+        <div class="app-title">SAB Speak</div>
+        <div class="app-sub">Tu coach de inglés con IA</div>
+      </div>
+      <div class="header-right">
+        <div class="streak-pill">🔥 5 días</div>
+        <div class="level-badge">Nv.3</div>
+      </div>
+    </div>
+    <div class="xp-row">
+      <div class="xp-track"><div class="xp-fill"></div></div>
+      <div class="xp-lbl">340 / 1000 XP</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" id="nb-chat" onclick="show('chat')">
+      <span class="ico">💬</span>Chat
+    </button>
+    <button class="nav-btn" id="nb-quiz" onclick="show('quiz')">
+      <span class="ico">🏆</span>Quiz
+    </button>
+    <button class="nav-btn" id="nb-read" onclick="show('read')">
+      <span class="ico">📖</span>Leer
+    </button>
+    <button class="nav-btn" id="nb-prog" onclick="show('prog')">
+      <span class="ico">📊</span>Progreso
+    </button>
+    <button class="nav-btn" id="nb-cfg" onclick="show('cfg')">
+      <span class="ico">⚙️</span>Config
+    </button>
+  </nav>
+
+  <div class="screens">
+
+    <!-- CHAT -->
+    <div id="sc-chat" class="screen active">
+      <div id="gemini-bar" class="gemini-badge" style="display:none">
+        <span class="gemini-status" id="gemini-dot"></span>
+        <span id="gemini-lbl">Gemini conectado</span>
+      </div>
+      <div class="chat-area" id="chat-area">
+        <div class="msg-row">
+          <div class="bubble ai">Hi Jorge! Ready to practice? Tell me about a project you're working on. 🏗️</div>
+        </div>
+        <div class="msg-row">
+          <div class="bubble ai">I can hear your <span class="tooltip-word">enthusiasm<span class="tt">enthusiasm = entusiasmo, energía positiva</span></span>. Can you tell me more about the <span class="tooltip-word">structural challenges<span class="tt">structural challenges = desafíos estructurales</span></span> you're facing?</div>
+        </div>
+      </div>
+      <div class="input-row">
+        <button class="btn-circle btn-mic" id="micBtn" onclick="toggleMic()">🎤</button>
+        <input type="text" id="chatIn" placeholder="Escribe o habla en inglés…" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="btn-circle btn-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="sc-quiz" class="screen">
+      <div class="lvbar" id="qlvbar"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+        <span style="font-size:13px;color:var(--text3)">Pregunta <span id="qnum">1</span> de 10</span>
+        <div class="quiz-money" style="font-size:15px;margin:0">💰 $<span id="qmoney">100</span></div>
+      </div>
+      <div class="lifelines">
+        <button class="ll-btn" id="ll50" onclick="ll50()">÷ 50:50</button>
+        <button class="ll-btn" id="llph" onclick="llPhone()">📞 Llamada</button>
+        <button class="ll-btn" id="llpu" onclick="llPublic()">👥 Público</button>
+      </div>
+      <div class="card" style="padding:1.1rem">
+        <div class="quiz-q-text" id="quiz-q"></div>
+        <div id="quiz-opts"></div>
+      </div>
+      <div class="quiz-fb" id="quiz-fb"></div>
+    </div>
+
+    <!-- READ -->
+    <div id="sc-read" class="screen">
+      <div class="topic-row" id="topic-row">
+        <div class="chip on" onclick="loadRead('technology',this)">Tecnología</div>
+        <div class="chip" onclick="loadRead('genetics',this)">Genética</div>
+        <div class="chip" onclick="loadRead('robotics',this)">Robótica</div>
+        <div class="chip" onclick="loadRead('physics',this)">Física</div>
+        <div class="chip" onclick="loadRead('botany',this)">Botánica</div>
+        <div class="chip" onclick="loadRead('engineering',this)">Ingeniería</div>
+      </div>
+      <div id="read-content"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="sc-prog" class="screen">
+      <div class="ring-wrap">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="52" fill="none" stroke="rgba(124,106,255,0.15)" stroke-width="11"/>
+          <circle cx="65" cy="65" r="52" fill="none" stroke="url(#rg)" stroke-width="11" stroke-dasharray="326.7" stroke-dashoffset="212.4" stroke-linecap="round" transform="rotate(-90 65 65)"/>
+          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7c6aff"/><stop offset="100%" stop-color="#1de0a0"/></linearGradient></defs>
+          <text x="65" y="59" text-anchor="middle" font-size="24" font-weight="700" fill="#a594ff" font-family="Syne,sans-serif">35</text>
+          <text x="65" y="76" text-anchor="middle" font-size="11" fill="#6b5e8a" font-family="DM Sans,sans-serif">de 100</text>
+        </svg>
+      </div>
+      <div class="score-label">
+        <div class="score-num">Intermedio bajo</div>
+        <div class="score-desc">¡Vas muy bien para 5 días de práctica!</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-n">5</div><div class="stat-l">Días seguidos 🔥</div></div>
+        <div class="stat-box"><div class="stat-n">47</div><div class="stat-l">Conversaciones</div></div>
+        <div class="stat-box"><div class="stat-n">89%</div><div class="stat-l">Precisión gramática</div></div>
+        <div class="stat-box"><div class="stat-n">340</div><div class="stat-l">XP acumulado</div></div>
+      </div>
+      <div class="card">
+        <div class="skill-row">
+          <span class="skill-nm">Hablar</span>
+          <div class="skill-track"><div class="skill-fill" style="width:32%;background:var(--purple)"></div></div>
+          <span class="skill-val">32 / 100</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-nm">Pronunciación</span>
+          <div class="skill-track"><div class="skill-fill" style="width:28%;background:var(--pink)"></div></div>
+          <span class="skill-val">28 / 100</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-nm">Escuchar</span>
+          <div class="skill-track"><div class="skill-fill" style="width:45%;background:var(--teal)"></div></div>
+          <span class="skill-val">45 / 100</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-nm">Escritura</span>
+          <div class="skill-track"><div class="skill-fill" style="width:38%;background:#378ADD"></div></div>
+          <span class="skill-val">38 / 100</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-nm">Vocabulario</span>
+          <div class="skill-track"><div class="skill-fill" style="width:30%;background:var(--amber)"></div></div>
+          <span class="skill-val">30 / 100</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="sc-cfg" class="screen">
+      <div class="card" style="margin-bottom:0.75rem">
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:0.75rem">🤖 Conectar con Gemini AI</div>
+        <div class="gemini-badge" style="margin-bottom:0.75rem">
+          <span class="gemini-status off" id="cfg-dot"></span>
+          <span id="cfg-lbl">Sin conectar</span>
+        </div>
+        <p class="api-hint" style="margin-bottom:0.6rem">Pega tu API key de Gemini para que el chat responda con IA real:</p>
+        <div class="api-row">
+          <input type="password" id="apiKeyInput" placeholder="AIza...tu-clave-aqui"/>
+          <button class="btn-connect" onclick="connectGemini()">Conectar</button>
+        </div>
+        <p class="api-hint">
+          Obtén tu clave gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> → "Get API Key" → es gratis.<br/>
+          La clave se guarda solo en tu dispositivo.
+        </p>
+      </div>
+      <div class="card">
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:0.5rem">⚙️ Preferencias</div>
+        <div class="setting-row">
+          <span class="setting-lbl">Velocidad respuesta IA</span>
+          <div class="setting-ctrl">
+            <select><option>Normal</option><option>Lenta</option><option>Rápida</option></select>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-lbl">Correcciones automáticas</span>
+          <div class="setting-ctrl"><input type="checkbox" checked/></div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-lbl">Acento preferido</span>
+          <div class="setting-ctrl">
+            <select><option>Americano</option><option>Británico</option><option>Australiano</option></select>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-lbl">Recordatorio diario</span>
+          <div class="setting-ctrl"><input type="time" value="08:00"/></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const screens=['chat','quiz','read','prog','cfg'];
+function show(name){
+  screens.forEach(s=>{
+    document.getElementById('sc-'+s).classList.remove('active');
+    document.getElementById('nb-'+s).classList.remove('active');
+  });
+  document.getElementById('sc-'+name).classList.add('active');
+  document.getElementById('nb-'+name).classList.add('active');
+  if(name==='quiz')initQuiz();
+  if(name==='read')loadRead('technology',document.querySelector('.chip.on'));
+}
+
+let geminiKey='';
+let geminiConnected=false;
+
+function connectGemini(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  if(!k){alert('Pega tu API key primero.');return;}
+  geminiKey=k;
+  geminiConnected=true;
+  localStorage.setItem('sab_gemini_key',k);
+  document.getElementById('cfg-dot').classList.remove('off');
+  document.getElementById('cfg-lbl').textContent='Gemini conectado ✓';
+  const bar=document.getElementById('gemini-bar');
+  bar.style.display='inline-flex';
+  document.getElementById('gemini-dot').classList.remove('off');
+  document.getElementById('gemini-lbl').textContent='Gemini activo';
+  alert('¡Conectado! Ahora el chat responde con IA real.');
+}
+
+window.addEventListener('load',()=>{
+  const saved=localStorage.getItem('sab_gemini_key');
+  if(saved){
+    geminiKey=saved;geminiConnected=true;
+    document.getElementById('apiKeyInput').value=saved;
+    document.getElementById('cfg-dot').classList.remove('off');
+    document.getElementById('cfg-lbl').textContent='Gemini conectado ✓';
+    document.getElementById('gemini-bar').style.display='inline-flex';
+    document.getElementById('gemini-lbl').textContent='Gemini activo';
+  }
+});
+
+const fallbackResps=[
+  {ai:"Great answer! What specific <span class='tooltip-word'>challenges<span class='tt'>challenges = desafíos, obstáculos</span></span> are you facing with the <span class='tooltip-word'>foundation<span class='tt'>foundation = cimentación / base estructural</span></span>?",tip:null},
+  {ai:"Interesting! In <span class='tooltip-word'>structural engineering<span class='tt'>structural engineering = ingeniería estructural</span></span>, we say the load path is everything. Can you <span class='tooltip-word'>elaborate<span class='tt'>elaborate = explicar con más detalle</span></span>?",tip:"💡 Tip: 'I work in a project' → 'I work on a project'. Usa 'on' con proyectos."},
+  {ai:"Excellent progress! You're sounding more <span class='tooltip-word'>confident<span class='tt'>confident = seguro de sí mismo / confiado</span></span>. Shall we practice a mock client meeting now?",tip:null},
+];
+let ci=0,micOn=false;
+
+async function sendChat(){
+  const inp=document.getElementById('chatIn');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  addMsg(txt,'user');
+  inp.value='';
+  if(geminiConnected&&geminiKey){
+    const thinking=addMsg('…','ai');
+    try{
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:`You are SAB Speak, an English conversation coach for Jorge, a Spanish-speaking structural engineer from Venezuela who lived in Brazil. He understands English but needs to practice speaking. Respond in English, keep it conversational and encouraging, max 2-3 sentences. After your response add a line starting with 💡 Tip: if you notice a grammar error in his message, otherwise skip the tip. His message: ${txt}`}]}]})
+      });
+      const d=await res.json();
+      const reply=d.candidates?.[0]?.content?.parts?.[0]?.text||'Sorry, could not get a response.';
+      thinking.textContent=reply;
+    }catch(e){
+      thinking.textContent='Connection error. Check your API key in Config.';
+    }
+  }else{
+    setTimeout(()=>{
+      const r=fallbackResps[ci%fallbackResps.length];
+      addBubble(r.ai,'ai');
+      if(r.tip)addMsg(r.tip,'tip');
+      ci++;
+    },600);
+  }
+}
+
+function addMsg(txt,type){
+  const area=document.getElementById('chat-area');
+  const row=document.createElement('div');
+  row.className='msg-row'+(type==='user'?' user':'');
+  const b=document.createElement('div');
+  b.className='bubble '+type;
+  b.textContent=txt;
+  row.appendChild(b);
+  area.appendChild(row);
+  area.scrollTop=area.scrollHeight;
+  return b;
+}
+function addBubble(html,type){
+  const area=document.getElementById('chat-area');
+  const row=document.createElement('div');
+  row.className='msg-row';
+  const b=document.createElement('div');
+  b.className='bubble '+type;
+  b.innerHTML=html;
+  row.appendChild(b);
+  area.appendChild(row);
+  area.scrollTop=area.scrollHeight;
+}
+
+function toggleMic(){
+  micOn=!micOn;
+  const btn=document.getElementById('micBtn');
+  if(micOn){
+    btn.classList.add('rec');btn.textContent='🔴';
+    document.getElementById('chatIn').placeholder='Escuchando…';
+    if('SpeechRecognition' in window||'webkitSpeechRecognition' in window){
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      const r=new SR();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;
+      r.onresult=e=>{document.getElementById('chatIn').value=e.results[0][0].transcript;};
+      r.onend=()=>{micOn=false;btn.classList.remove('rec');btn.textContent='🎤';document.getElementById('chatIn').placeholder='Escribe o habla en inglés…';};
+      r.onerror=()=>{micOn=false;btn.classList.remove('rec');btn.textContent='🎤';document.getElementById('chatIn').placeholder='Escribe o habla en inglés…';};
+      r.start();
+    }else{
+      setTimeout(()=>{
+        micOn=false;btn.classList.remove('rec');btn.textContent='🎤';
+        document.getElementById('chatIn').placeholder='Escribe o habla en inglés…';
+        document.getElementById('chatIn').value="I'm working on a structural project right now.";
+      },2500);
+    }
+  }else{
+    micOn=false;btn.classList.remove('rec');btn.textContent='🎤';
+    document.getElementById('chatIn').placeholder='Escribe o habla en inglés…';
+  }
+}
+
+const quizData=[
+  {q:"What does 'breakthrough' mean?",opts:["Romper algo físico","Un avance importante","Una pausa laboral","Entrada trasera"],ans:1,ex:"Breakthrough = avance o descubrimiento importante."},
+  {q:"Choose the correct sentence:",opts:["I am work in a project","I working on project","I am working on a project","I works on a project"],ans:2,ex:"Use 'working on' — verbo continuo + preposición correcta."},
+  {q:"What does 'feasibility study' mean?",opts:["Estudio de factibilidad","Estudio de materiales","Informe de fallas","Plan de construcción"],ans:0,ex:"Feasibility study = estudio de viabilidad o factibilidad."},
+  {q:"'The deadline is tight.' What does this mean?",opts:["La fecha límite está lejos","Hay mucho tiempo disponible","El plazo de entrega es ajustado","El trabajo es muy difícil"],ans:2,ex:"Tight deadline = poco tiempo para cumplir la fecha límite."},
+  {q:"Which phrase means 'to finish a meeting'?",opts:["Break the ice","Wrap up","Touch base","Bring to the table"],ans:1,ex:"Wrap up = concluir / terminar. 'Let's wrap up' = cerremos."},
+  {q:"What does 'load-bearing wall' mean in construction?",opts:["Pared decorativa","Pared que soporta carga estructural","Muro de contención","Pared exterior"],ans:1,ex:"Load-bearing = que soporta carga — término clave en ingeniería estructural."},
+  {q:"'I'll look into it' means:",opts:["Lo ignoraré","Lo investigaré / averiguaré","Lo olvidaré","Lo publico"],ans:1,ex:"Look into = investigar, averiguar algo más a fondo."},
+  {q:"Correct use of present perfect:",opts:["I have went there","I has gone there","I have gone there","I did gone there"],ans:2,ex:"Present perfect = have/has + past participle. 'gone' es correcto, no 'went'."},
+  {q:"'Cutting-edge technology' means:",opts:["Tecnología obsoleta","Tecnología de punta / vanguardia","Tecnología peligrosa","Tecnología barata"],ans:1,ex:"Cutting-edge = de punta, lo más avanzado y reciente disponible."},
+  {q:"How do you say 'presupuesto' in English?",opts:["Budget","Billing","Bonus","Backup"],ans:0,ex:"Budget = presupuesto. 'We need to review the project budget.'"},
+];
+const money=['$100','$200','$300','$500','$1,000','$2,000','$4,000','$8,000','$16,000','$1,000,000'];
+let qIdx=0,qAnswered=false,ll50u=false,llphu=false,llpuu=false;
+
+function initQuiz(){qIdx=0;qAnswered=false;ll50u=false;llphu=false;llpuu=false;['ll50','llph','llpu'].forEach(id=>document.getElementById(id).classList.remove('used'));renderQ();}
+
+function buildLv(){
+  const bar=document.getElementById('qlvbar');bar.innerHTML='';
+  for(let i=0;i<10;i++){const d=document.createElement('div');d.className='lvbar-dot'+(i<qIdx?' done':i===qIdx?' now':'');bar.appendChild(d);}
+}
+
+function renderQ(){
+  const q=quizData[qIdx%quizData.length];
+  document.getElementById('quiz-q').textContent=q.q;
+  document.getElementById('qnum').textContent=qIdx+1;
+  document.getElementById('qmoney').textContent=money[Math.min(qIdx,money.length-1)];
+  document.getElementById('quiz-fb').textContent='';
+  qAnswered=false;
+  const opts=document.getElementById('quiz-opts');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');btn.className='opt';
+    btn.textContent=String.fromCharCode(65+i)+'. '+o;
+    btn.onclick=()=>answer(i,btn);opts.appendChild(btn);
+  });
+  buildLv();
+}
+
+function answer(i,btn){
+  if(qAnswered)return;qAnswered=true;
+  const q=quizData[qIdx%quizData.length];
+  document.querySelectorAll('.opt').forEach((b,idx)=>{if(idx===q.ans)b.classList.add('correct');});
+  if(i!==q.ans)btn.classList.add('wrong');
+  document.getElementById('quiz-fb').textContent='💡 '+q.ex;
+  setTimeout(()=>{qIdx++;renderQ();},1900);
+}
+
+function ll50(){if(ll50u||qAnswered)return;ll50u=true;document.getElementById('ll50').classList.add('used');const q=quizData[qIdx%quizData.length];let r=0;document.querySelectorAll('.opt').forEach((b,i)=>{if(i!==q.ans&&r<2){b.style.opacity='0.18';b.style.pointerEvents='none';r++;}});}
+function llPhone(){if(llphu||qAnswered)return;llphu=true;document.getElementById('llph').classList.add('used');const q=quizData[qIdx%quizData.length];document.getElementById('quiz-fb').textContent='📞 Tu amigo dice: "Creo que es la opción '+String.fromCharCode(65+q.ans)+', casi seguro!"';}
+function llPublic(){if(llpuu||qAnswered)return;llpuu=true;document.getElementById('llpu').classList.add('used');const q=quizData[qIdx%quizData.length];document.getElementById('quiz-fb').textContent='👥 El público votó 71% por la opción '+String.fromCharCode(65+q.ans)+'.';}
+
+const articles={
+  technology:{tag:'Tecnología',tc:'#a594ff',tb:'rgba(124,106,255,0.18)',title:'How AI is reshaping engineering design',body:`<span class='tooltip-word'>Artificial intelligence<span class='tt'>AI = inteligencia artificial</span></span> is transforming how engineers <span class='tooltip-word'>approach<span class='tt'>approach = abordar un problema</span></span> complex design. Modern <span class='tooltip-word'>algorithms<span class='tt'>algorithms = algoritmos, instrucciones computacionales</span></span> can <span class='tooltip-word'>simulate<span class='tt'>simulate = simular condiciones reales</span></span> thousands of structural scenarios in seconds, cutting <span class='tooltip-word'>feasibility study<span class='tt'>feasibility study = estudio de viabilidad</span></span> time from weeks to hours.`},
+  genetics:{tag:'Genética',tc:'#1de0a0',tb:'rgba(29,224,160,0.12)',title:'CRISPR and the future of gene editing',body:`<span class='tooltip-word'>CRISPR-Cas9<span class='tt'>CRISPR = herramienta de edición genética de precisión</span></span> has <span class='tooltip-word'>revolutionized<span class='tt'>revolutionized = revolucionado, transformado radicalmente</span></span> biology. Scientists can now <span class='tooltip-word'>precisely<span class='tt'>precisely = con precisión exacta</span></span> cut and modify <span class='tooltip-word'>DNA sequences<span class='tt'>DNA sequences = secuencias de ADN</span></span>, opening doors to treatments for previously <span class='tooltip-word'>incurable<span class='tt'>incurable = sin tratamiento conocido</span></span> diseases.`},
+  robotics:{tag:'Robótica',tc:'#ffb84d',tb:'rgba(255,184,77,0.12)',title:'Autonomous robots in construction sites',body:`<span class='tooltip-word'>Autonomous<span class='tt'>autonomous = autónomo, que opera solo</span></span> robots are now used on <span class='tooltip-word'>construction sites<span class='tt'>construction site = obra de construcción</span></span> for <span class='tooltip-word'>hazardous<span class='tt'>hazardous = peligroso, riesgoso</span></span> tasks. They use <span class='tooltip-word'>sensors<span class='tt'>sensors = sensores, detectores</span></span> and computer vision to <span class='tooltip-word'>navigate<span class='tt'>navigate = moverse en un entorno</span></span> complex environments safely and without human guidance.`},
+  physics:{tag:'Física',tc:'#7c6aff',tb:'rgba(124,106,255,0.15)',title:'Quantum computing: beyond classical limits',body:`<span class='tooltip-word'>Quantum computers<span class='tt'>quantum computers = computadoras cuánticas</span></span> exploit <span class='tooltip-word'>superposition<span class='tt'>superposition = existir en múltiples estados simultáneos</span></span> to calculate <span class='tooltip-word'>exponentially<span class='tt'>exponentially = a una tasa muy acelerada</span></span> faster than classical machines. This <span class='tooltip-word'>breakthrough<span class='tt'>breakthrough = avance tecnológico importante</span></span> could transform <span class='tooltip-word'>cryptography<span class='tt'>cryptography = criptografía, ciencia del cifrado</span></span> and medicine.`},
+  botany:{tag:'Botánica',tc:'#5DCAA5',tb:'rgba(93,202,165,0.12)',title:'How plants communicate through root networks',body:`Trees are <span class='tooltip-word'>interconnected<span class='tt'>interconnected = interconectados, enlazados</span></span> through <span class='tooltip-word'>fungal networks<span class='tt'>fungal networks = redes de hongos / micelios</span></span> called <span class='tooltip-word'>mycorrhizae<span class='tt'>mycorrhizae = micorrizas, asociación hongo-raíz</span></span>. Through these, trees can <span class='tooltip-word'>share nutrients<span class='tt'>share nutrients = compartir nutrientes</span></span> and send <span class='tooltip-word'>chemical signals<span class='tt'>chemical signals = señales químicas de alerta</span></span> to <span class='tooltip-word'>warn<span class='tt'>warn = advertir, alertar sobre peligro</span></span> neighbors of insect attacks.`},
+  engineering:{tag:'Ingeniería',tc:'#ff6b9d',tb:'rgba(255,107,157,0.12)',title:'Steel connections in high-rise structures',body:`Modern <span class='tooltip-word'>high-rise<span class='tt'>high-rise = edificio de gran altura</span></span> buildings rely on <span class='tooltip-word'>moment-resisting frames<span class='tt'>moment frame = estructura que resiste momentos de flexión</span></span> to <span class='tooltip-word'>withstand<span class='tt'>withstand = resistir, soportar fuerzas</span></span> lateral forces from wind and earthquakes. Engineers must carefully design each <span class='tooltip-word'>connection<span class='tt'>connection = conexión estructural entre elementos</span></span> to ensure proper <span class='tooltip-word'>load transfer<span class='tt'>load transfer = transferencia de cargas entre elementos</span></span> throughout the entire structure.`},
+};
+
+function loadRead(topic,el){
+  if(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+  const a=articles[topic];
+  document.getElementById('read-content').innerHTML=`
+    <div class="card">
+      <div class="read-tag" style="background:${a.tb};color:${a.tc}">${a.tag}</div>
+      <div class="read-title">${a.title}</div>
+      <div class="read-body">${a.body}</div>
+      <div class="read-actions">
+        <button class="read-act" onclick="speakText()">🔊 Escuchar</button>
+        <button class="read-act" onclick="nextArticle('${topic}')">➜ Siguiente</button>
+      </div>
+    </div>`;
+}
+
+const topicOrder=['technology','genetics','robotics','physics','botany','engineering'];
+function nextArticle(current){
+  const i=(topicOrder.indexOf(current)+1)%topicOrder.length;
+  const chips=document.querySelectorAll('.chip');
+  loadRead(topicOrder[i],chips[i]);
+}
+
+function speakText(){
+  const txt=document.querySelector('.read-body')?.innerText;
+  if(!txt||!window.speechSynthesis)return;
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='en-US';u.rate=0.9;
+  speechSynthesis.speak(u);
+}
+
+loadRead('technology',null);
+initQuiz();
+</script>
+</body>
+</html>
